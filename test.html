@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="./dist/zepto.js">
+		
+	</script>
+</head>
+<body>
+	<div class="z"></div>
+</body>
+<script type="text/javascript">
+	debugger
+	$('.z').html('x')
+	console.log($(document).__proto__===$.fn)//true
+	
+	let t = $("<p />", { text:"Hello", id:"greeting", css:{color:'darkblue'} })
+
+	console.log($(t))
+	function re(){
+		alert('ready')
+	}
+	$(re)
+</script>
+</html>
