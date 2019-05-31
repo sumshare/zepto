@@ -8,7 +8,9 @@ var Zepto = (function() {
     elementDisplay = {}, classCache = {},
     cssNumber = { 'column-count': 1, 'columns': 1, 'font-weight': 1, 'line-height': 1,'opacity': 1, 'z-index': 1, 'zoom': 1 },
     fragmentRE = /^\s*<(\w+|!)[^>]*>/,
+
     singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+
     tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
     rootNodeRE = /^(?:body|html)$/i,
     capitalRE = /([A-Z])/g,
@@ -61,7 +63,7 @@ var Zepto = (function() {
     temp && tempParent.removeChild(element)
     return match
   }
-
+  // 类型判断class2type是后面拓展的
   function type(obj) {
     return obj == null ? String(obj) :
       class2type[toString.call(obj)] || "object"
@@ -74,7 +76,7 @@ var Zepto = (function() {
   function isPlainObject(obj) {
     return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
   }
-
+  // 类似数组
   function likeArray(obj) {
     var length = !!obj && 'length' in obj && obj.length,
       type = $.type(obj)
@@ -84,19 +86,25 @@ var Zepto = (function() {
         (typeof length == 'number' && length > 0 && (length - 1) in obj)
     )
   }
-
+  // 压缩，把无效的数组项过滤掉
   function compact(array) { return filter.call(array, function(item){ return item != null }) }
+
   function flatten(array) { return array.length > 0 ? $.fn.concat.apply([], array) : array }
+  // 驼峰化
   camelize = function(str){ return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' }) }
+
+  // 将驼峰转为-连接形式
   function dasherize(str) {
     return str.replace(/::/g, '/')
+           // 捕获分组切换
            .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
            .replace(/([a-z\d])([A-Z])/g, '$1_$2')
            .replace(/_/g, '-')
            .toLowerCase()
   }
+  // 获取数组值是惟一的数组，重复的将被过滤
   uniq = function(array){ return filter.call(array, function(item, idx){ return array.indexOf(item) == idx }) }
-
+  // classCache其实是在运行中扩充的，返回对应的正则表达式:e.g. /(^|\s)q(\s|$)/
   function classRE(name) {
     return name in classCache ?
       classCache[name] : (classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)'))
@@ -877,6 +885,7 @@ var Zepto = (function() {
   // Generate the `after`, `prepend`, `before`, `append`,
   // `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
   adjacencyOperators.forEach(function(operator, operatorIndex) {
+    // 余数要么是0要么是1
     var inside = operatorIndex % 2 //=> prepend, append
 
     $.fn[operator] = function(){
@@ -897,7 +906,7 @@ var Zepto = (function() {
           }),
           parent, copyByClone = this.length > 1
       if (nodes.length < 1) return this
-
+      // each(function(index, item){ ... })   ⇒ self
       return this.each(function(_, target){
         parent = inside ? target : target.parentNode
 
@@ -924,7 +933,7 @@ var Zepto = (function() {
         })
       })
     }
-
+    // adjacencyOperators = [ 'after', 'prepend', 'before', 'append' ],
     // after    => insertAfter
     // prepend  => prependTo
     // before   => insertBefore
