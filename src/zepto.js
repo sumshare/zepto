@@ -7,20 +7,25 @@ var Zepto = (function() {
     document = window.document,
     elementDisplay = {}, classCache = {},
     cssNumber = { 'column-count': 1, 'columns': 1, 'font-weight': 1, 'line-height': 1,'opacity': 1, 'z-index': 1, 'zoom': 1 },
-    fragmentRE = /^\s*<(\w+|!)[^>]*>/,
+    fragmentRE = /^\s*<(\w+|!)[^>]*>/,// 大概是匹配是否是用标签开头用的，如<div>
 
-    singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+    singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/, // 比如<img></img>是可以匹配的，非捕获部分就是为了匹配和捕获部分对应的，或者没有规则，直接单个标签<img/>也是可以的
+    // \s*匹配任何空白字符 ,所以标签里不能有属性，标签内部也不能有值<img>s</img>也是不能匹配
+    // 那么想一下，什么标签才能这么玩，我觉得是为了防止有人写错格式<hr></hr>这么写
+    // 纵观全局，这个正则只用在一个地方，是用来生成dom节点的
 
-    tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
+    tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,  // 捕获到的不是这些标签
     rootNodeRE = /^(?:body|html)$/i,
     capitalRE = /([A-Z])/g,
 
     // special attributes that should be get/set via method calls
+    // 定义一些方法名
     methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
-
+    // 邻近操作方法名
     adjacencyOperators = [ 'after', 'prepend', 'before', 'append' ],
     table = document.createElement('table'),
     tableRow = document.createElement('tr'),
+    // table操作
     containers = {
       'tr': document.createElement('tbody'),
       'tbody': table, 'thead': table, 'tfoot': table,
@@ -145,18 +150,22 @@ var Zepto = (function() {
   // The generated DOM nodes are returned as an array.
   // This function can be overridden in plugins for example to make
   // it compatible with browsers that don't support the DOM fully.
+  // 构建DOM节点
   zepto.fragment = function(html, name, properties) {
+    // name有可能是标签名，或者!(如果传入整个网页)
     var dom, nodes, container
 
     // A special case optimization for a single tag
     if (singleTagRE.test(html)) dom = $(document.createElement(RegExp.$1))
-
+    // 如果以上不成立，说明这个标签混了内容在里面不是纯粹一个标签
+    // 属于异常处理
     if (!dom) {
+      // 如果<:sd/>ss<div/>
       if (html.replace) html = html.replace(tagExpanderRE, "<$1></$2>")
       if (name === undefined) name = fragmentRE.test(html) && RegExp.$1
       if (!(name in containers)) name = '*'
 
-      container = containers[name]
+      container = containers[name] // 一般是div节点
       container.innerHTML = '' + html
       dom = $.each(slice.call(container.childNodes), function(){
         container.removeChild(this)
@@ -201,6 +210,7 @@ var Zepto = (function() {
       // If it's a html fragment, create nodes from it
       // Note: In both Chrome 21 and Firefox 15, DOM error 12
       // is thrown if the fragment doesn't begin with <
+      // 如果是html片段，创建节点
       if (selector[0] == '<' && fragmentRE.test(selector))
         dom = zepto.fragment(selector, RegExp.$1, context), selector = null
       // If there's a context, create a collection on that context first, and select
@@ -386,7 +396,8 @@ var Zepto = (function() {
       }
     return flatten(values)
   }
-
+  // 迭代函数返回false就能停止继续迭代
+  // Iterate over array elements or object key-value pairs. Returning false from the iterator function stops the iteration.
   $.each = function(elements, callback){
     var i, key
     if (likeArray(elements)) {

@@ -12,15 +12,33 @@
 </body>
 <script type="text/javascript">
 	debugger
-	$('.z').html('x')
-	console.log($(document).__proto__===$.fn)//true
+	/**
+	 * 测试1
+	 */
+	// $('.z').html('x')
+	// console.log($(document).__proto__===$.fn)//true
 	
-	let t = $("<p />", { text:"Hello", id:"greeting", css:{color:'darkblue'} })
+	// let t = $("<p />", { text:"Hello", id:"greeting", css:{color:'darkblue'} })
 
-	console.log($(t))
-	function re(){
-		alert('ready')
-	}
-	$(re)
+	// console.log($(t))
+	// function re(){
+	// 	alert('ready')
+	// }
+	// $(re)
+	// 
+
+	/**
+	 * 测试2
+	 */
+	// $(function(){console.log('ready go')})
+
+	/**
+	 * 测试3
+	 */ 
+	$("<p />", { text:"Hello", id:"greeting", css:{color:'darkblue'} })
+
+
+
+	
 </script>
 </html>
